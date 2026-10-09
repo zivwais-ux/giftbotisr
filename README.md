@@ -8,6 +8,7 @@ AI gift recommendations over WhatsApp. Product context and decisions: [docs/Gift
 - Stage 2 ✅ Domain model + recommendation engine, tested against clearly-marked sample data.
 - Stage 3 ✅ Database schema (Supabase-compatible migrations) + repositories; engine runs against the database.
 - Stage 4 ✅ Conversation engine: channel-neutral dialog, state in the database, dedup, opt-out, analytics.
+- Stage 5 ✅ WhatsApp Cloud API channel: signed webhook, message parsing, sending with retries. Not yet connected to a live Meta account.
 
 No external services (WhatsApp, hosted Supabase, AI model, affiliate programs) are connected yet.
 
@@ -68,6 +69,13 @@ src/
     render.ts             Product cards, honest notes, affiliate disclosure
   db/conversation-repository.ts  Users, conversations, dedup, analytics events
   services/conversation-service.ts  One inbound message → reply, in one transaction
+  channels/whatsapp/      WhatsApp Cloud API adapter
+    signature.ts          X-Hub-Signature-256 verification (constant-time)
+    inbound.ts            Webhook payload → InboundMessage
+    outbound.ts           OutboundMessage → Cloud API request body
+    client.ts             Sending, with retries for 429/5xx/network errors
+    webhook.ts            GET handshake + POST handling
+  logger.ts               JSON logs; phone numbers masked, no secrets or message text
 supabase/migrations/      SQL schema (Supabase CLI naming)
 scripts/demo.ts           Prints recommendations for a few sample scenarios
 tests/                    Automated tests
@@ -112,6 +120,19 @@ Commands at any time: "התחל מחדש", "עזרה", "הסר". Conversations i
 
 Interests are currently picked from a fixed list of 9 categories (plus "no specific interest").
 Understanding free text with AI is a later stage.
+
+## WhatsApp
+
+Routes (enabled only when all `WHATSAPP_*` variables are set, see `.env.example`):
+- `GET /webhooks/whatsapp` — Meta's verification handshake.
+- `POST /webhooks/whatsapp` — incoming messages. Requests without a valid Meta signature get 401.
+  Messages are processed and saved **before** responding: on failure the server answers 500 and Meta
+  retries safely (deduplicated). Replies are sent **after** the 200 response, in order; if one fails,
+  the rest for that user are skipped and the error is logged.
+
+Images, voice notes etc. get a friendly "text and buttons only for now" reply.
+No exchange-rate source is connected yet, so foreign-currency products are excluded (never priced with invented rates).
+Setup steps on Meta's side: [docs/whatsapp-setup.md](docs/whatsapp-setup.md).
 
 ## Database
 

@@ -140,6 +140,14 @@ describe("typed answers", () => {
     ]);
   });
 
+  it("explains that images/voice/etc. aren't supported yet and repeats the question", () => {
+    const before = play([tap("r:friend")]);
+    const out = handleInput(before.state, { type: "unsupported", kind: "audio" }, NOW);
+    expect(out.state).toEqual(before.state);
+    expect(out.messages[0]).toEqual({ type: "text", body: TEXTS.unsupported });
+    expect(out.messages[1]).toMatchObject({ body: "מה האירוע? 🎉" });
+  });
+
   it("ignores unknown button ids", () => {
     const before = play([tap("r:friend")]);
     const out = handleInput(before.state, tap("r:martian"), NOW);

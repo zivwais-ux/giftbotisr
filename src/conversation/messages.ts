@@ -6,7 +6,9 @@
 export type InboundContent =
   | { type: "text"; text: string }
   /** The user tapped a button or picked a list row; `id` is the option id we sent. */
-  | { type: "choice"; id: string; title?: string };
+  | { type: "choice"; id: string; title?: string }
+  /** Anything we can't interpret yet (image, voice note, sticker, location...). */
+  | { type: "unsupported"; kind: string };
 
 export interface InboundMessage {
   /** Provider's unique message id — used for deduplication. */

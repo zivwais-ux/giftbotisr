@@ -46,6 +46,7 @@ export const TEXTS = {
   help:
     "אני שואל כמה שאלות קצרות ומציע עד 5 מתנות מתאימות.\n• אפשר ללחוץ על הכפתורים או לכתוב תשובה\n• \"התחל מחדש\" — חיפוש חדש\n• \"הסר\" — הפסקת קבלת הודעות",
   notUnderstood: "לא הבנתי 🙂 אפשר לבחור מהאפשרויות או לכתוב שוב.",
+  unsupported: "כרגע אני מבין רק הודעות טקסט ולחיצות על כפתורים 🙂",
   budgetNotUnderstood: "לא הצלחתי להבין את התקציב 🙂 כתבו סכום בשקלים, למשל 250 או 200-300.",
   chooseAction: "אפשר לבחור אחת האפשרויות, או לכתוב \"התחל מחדש\" לחיפוש חדש.",
   stopped: "הוסרתם ✔️ לא נשלח הודעות נוספות.\nכדי לחזור בכל זמן, כתבו \"התחל\".",
@@ -73,6 +74,9 @@ export function startConversation(): FlowOutput {
 
 /** Handles one inbound message in an existing conversation. */
 export function handleInput(state: ConversationState, content: InboundContent, now: Date): FlowOutput {
+  if (content.type === "unsupported") {
+    return { state, messages: [text(TEXTS.unsupported), ...repeatCurrent(state)] };
+  }
   const typed = content.type === "text" ? normalizeText(content.text) : undefined;
 
   // Commands work from any step.
