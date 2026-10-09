@@ -3,6 +3,7 @@ import { createApp, type AppDeps } from "./app.js";
 import { createWhatsAppClient } from "./channels/whatsapp/client.js";
 import { loadConfig, loadDotEnv, type Config } from "./config.js";
 import { createPgDatabase, type Database } from "./db/database.js";
+import { getDatabaseStatus } from "./db/status.js";
 import type { ExchangeRates } from "./domain/money.js";
 import { consoleLogger as logger } from "./logger.js";
 import { handleInboundMessage } from "./services/conversation-service.js";
@@ -19,14 +20,24 @@ const NO_EXCHANGE_RATES: ExchangeRates = { toIls: {}, asOf: new Date(0) };
 const background = new Set<Promise<void>>();
 let db: Database | undefined;
 
+if (config.databaseUrl) db = createPgDatabase(config.databaseUrl);
+
+/** Logs schema and catalog state at startup, so deploy logs show whether the release step worked. */
+async function logDatabaseStatus(database: Database): Promise<void> {
+  try {
+    logger.log("info", "database.status", { ...(await getDatabaseStatus(database)) });
+  } catch (err) {
+    logger.log("error", "database.unavailable", { error: (err as Error).message });
+  }
+}
+
 function buildDeps(cfg: Config): AppDeps {
   if (!cfg.whatsapp) {
     logger.log("info", "whatsapp.disabled", { reason: "WHATSAPP_* variables not set" });
     return {};
   }
-  if (!cfg.databaseUrl) throw new Error("WhatsApp is configured but DATABASE_URL is not set");
-  const database = createPgDatabase(cfg.databaseUrl);
-  db = database;
+  if (!db) throw new Error("WhatsApp is configured but DATABASE_URL is not set");
+  const database = db;
   if (cfg.allowSampleProducts) logger.log("warn", "sample_products.enabled");
   logger.log("warn", "exchange_rates.unavailable", { effect: "foreign-currency products are excluded" });
 
@@ -51,6 +62,7 @@ function buildDeps(cfg: Config): AppDeps {
 }
 
 const server: Server = createApp(buildDeps(config));
+if (db) void logDatabaseStatus(db);
 server.listen(config.port, () => {
   logger.log("info", "server.started", { port: config.port, env: config.nodeEnv, whatsapp: Boolean(config.whatsapp) });
 });
