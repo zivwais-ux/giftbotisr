@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+
+# Secrets — never commit real environment files
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.log
