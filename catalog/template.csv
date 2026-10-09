@@ -1,0 +1,3 @@
+id,title,description,price,sale_price,link,image_link,availability,product_type,interests,occasions,recipients
+EXAMPLE-1,[דוגמה] ספל קרמיקה בעבודת יד,ספל 350 מ״ל בעבודת יד,89.90 ILS,,https://example.com/products/mug,https://example.com/images/mug.jpg,in stock,בית > מטבח > ספלים,coffee,birthday|housewarming|thank_you,any
+EXAMPLE-2,[דוגמה] שמיכת תינוק מכותנה,שמיכה רכה לתינוקות,149 ILS,129 ILS,https://example.com/products/blanket,https://example.com/images/blanket.jpg,in stock,תינוקות > שמיכות,,birth,baby

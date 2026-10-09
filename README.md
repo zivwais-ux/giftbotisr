@@ -9,6 +9,7 @@ AI gift recommendations over WhatsApp. Product context and decisions: [docs/Gift
 - Stage 3 ✅ Database schema (Supabase-compatible migrations) + repositories; engine runs against the database.
 - Stage 4 ✅ Conversation engine: channel-neutral dialog, state in the database, dedup, opt-out, analytics.
 - Stage 5 ✅ WhatsApp Cloud API channel: signed webhook, message parsing, sending with retries. Not yet connected to a live Meta account.
+- Stage 6 ✅ Catalog import: CSV / Google Merchant feeds → validated products, per-store terms config, affiliate links.
 
 No external services (WhatsApp, hosted Supabase, AI model, affiliate programs) are connected yet.
 
@@ -38,6 +39,7 @@ Check it works: open http://localhost:3000/health — expected response: `{"stat
 | `npm run demo`      | Run the engine on the sample catalog  |
 | `npm run db:migrate` | Apply pending migrations to `DATABASE_URL` |
 | `npm run db:seed-sample` | Load the ⚠️ sample catalog (refused in production) |
+| `npm run catalog:import -- --store <store.json> --file <feed>` | Import a store's products (dry run unless `--apply`) |
 
 ## Project layout
 
@@ -76,6 +78,13 @@ src/
     client.ts             Sending, with retries for 429/5xx/network errors
     webhook.ts            GET handshake + POST handling
   logger.ts               JSON logs; phone numbers masked, no secrets or message text
+  catalog/                Product import
+    store-config.ts       Per-store JSON: terms review, affiliate link template, defaults
+    feed-parsers.ts       CSV/TSV (Excel, Sheets, Shopify, WooCommerce) and Google Merchant XML
+    row-mapper.ts         Feed row → validated product (prices, availability, categories, links)
+    tagger.ts             Conservative keyword tagging (interests, baby products)
+    import.ts             Dry run / apply / sync, with a readable report
+catalog/                  template.csv and stores/<slug>.json (one per store)
 supabase/migrations/      SQL schema (Supabase CLI naming)
 scripts/demo.ts           Prints recommendations for a few sample scenarios
 tests/                    Automated tests
@@ -133,6 +142,14 @@ Routes (enabled only when all `WHATSAPP_*` variables are set, see `.env.example`
 Images, voice notes etc. get a friendly "text and buttons only for now" reply.
 No exchange-rate source is connected yet, so foreign-currency products are excluded (never priced with invented rates).
 Setup steps on Meta's side: [docs/whatsapp-setup.md](docs/whatsapp-setup.md).
+
+## Product catalog
+
+Each store has a config file in `catalog/stores/` recording its terms review (is sharing links in
+WhatsApp allowed? images? disclosure?) and an affiliate link template. Products come from a CSV or a
+Google Merchant feed; see [docs/catalog-import.md](docs/catalog-import.md) (Hebrew).
+Imports are dry runs by default; `--apply` writes, `--sync` hides products missing from a full feed.
+Products of stores that aren't `approved` are stored but never shown.
 
 ## Database
 

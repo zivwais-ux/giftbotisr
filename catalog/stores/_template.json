@@ -1,0 +1,26 @@
+{
+  "slug": "store-slug-here",
+  "name": "Store name",
+  "country": "IL",
+  "currency": "ILS",
+  "websiteUrl": "https://www.example.co.il",
+  "dataSource": "affiracle-feed",
+  "network": "affiracle",
+  "terms": {
+    "approvalStatus": "pending",
+    "allowsMessagingLinks": null,
+    "allowsProductImages": null,
+    "requiresAffiliateDisclosure": true,
+    "termsUrl": "https://www.example.co.il/affiliate-terms",
+    "notes": "What the terms say about WhatsApp/messaging, images and disclosure — quote the relevant section.",
+    "reviewedAt": null
+  },
+  "affiliateLinkTemplate": "https://tracking.example.com/click?aff=YOUR_ID&url={url}",
+  "defaults": {
+    "shipsTo": ["IL"],
+    "deliveryMinDays": 2,
+    "deliveryMaxDays": 5,
+    "occasions": ["any"],
+    "recipients": ["any"]
+  }
+}
