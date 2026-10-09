@@ -28,7 +28,7 @@ describe("loadConfig", () => {
   });
 
   it("rejects an invalid NODE_ENV", () => {
-    expect(() => loadConfig({ NODE_ENV: "staging" })).toThrow(/Invalid NODE_ENV/);
+    expect(() => loadConfig({ NODE_ENV: "qa" })).toThrow(/Invalid NODE_ENV/);
   });
 
   it("accepts a postgres DATABASE_URL and treats an empty one as unset", () => {
@@ -78,6 +78,7 @@ describe("loadConfig", () => {
 
   it("allows sample products only outside production", () => {
     expect(loadConfig({ ALLOW_SAMPLE_PRODUCTS: "true" }).allowSampleProducts).toBe(true);
+    expect(loadConfig({ ALLOW_SAMPLE_PRODUCTS: "true", NODE_ENV: "staging" }).allowSampleProducts).toBe(true);
     expect(() => loadConfig({ ALLOW_SAMPLE_PRODUCTS: "true", NODE_ENV: "production" })).toThrow(/not allowed/);
   });
 });

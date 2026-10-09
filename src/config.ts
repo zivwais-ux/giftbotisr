@@ -1,4 +1,5 @@
-export type NodeEnv = "development" | "test" | "production";
+/** "staging": a deployed test environment (may show sample data); "production": real users. */
+export type NodeEnv = "development" | "test" | "staging" | "production";
 
 export interface WhatsAppConfig {
   verifyToken: string;
@@ -29,7 +30,7 @@ const WHATSAPP_VARS = {
   phoneNumberId: "WHATSAPP_PHONE_NUMBER_ID",
 } as const;
 
-const NODE_ENVS: readonly NodeEnv[] = ["development", "test", "production"];
+const NODE_ENVS: readonly NodeEnv[] = ["development", "test", "staging", "production"];
 
 /**
  * Reads and validates configuration from environment variables.
