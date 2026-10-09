@@ -4,6 +4,9 @@ import { resolveOptions, type EngineContext, type EngineOptions } from "./contex
 import { applyHardFilters, type ExclusionReason } from "./filters.js";
 import { scoreProduct, type ScoreComponents } from "./scoring.js";
 
+/** Bump when filter/scoring behavior changes, so stored results can be traced to the logic that produced them. */
+export const ENGINE_VERSION = "1.0.0";
+
 /** Facts the user must be told about, so we never present unverified data as certain. */
 export type RecommendationWarning =
   | "sample_data"
@@ -36,6 +39,9 @@ export interface RecommendationResult {
   /** Products that passed the hard filters but were judged not relevant enough to show. */
   belowThreshold: { productId: string; score: number; reason: RelevanceRejection }[];
   evaluatedCount: number;
+  engineVersion: string;
+  /** The fully resolved options used for this run. */
+  optionsUsed: EngineOptions;
 }
 
 export interface RecommendParams {
@@ -114,6 +120,8 @@ export function recommend(params: RecommendParams): RecommendationResult {
     excluded,
     belowThreshold,
     evaluatedCount: params.products.length,
+    engineVersion: ENGINE_VERSION,
+    optionsUsed: options,
   };
 }
 

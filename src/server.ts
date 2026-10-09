@@ -1,6 +1,7 @@
 import { createApp } from "./app.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, loadDotEnv } from "./config.js";
 
+loadDotEnv();
 const config = loadConfig();
 const server = createApp();
 

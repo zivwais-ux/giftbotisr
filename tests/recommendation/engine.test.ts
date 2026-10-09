@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SAMPLE_EXCHANGE_RATES, SAMPLE_PRODUCTS, SAMPLE_REFERENCE_DATE } from "../../src/data/sample-products.js";
 import type { GiftRequest, Product } from "../../src/domain/types.js";
-import { recommend, type EngineOptions } from "../../src/recommendation/index.js";
+import { ENGINE_VERSION, recommend, type EngineOptions } from "../../src/recommendation/index.js";
 import { makeProduct, makeRequest, NOW, RATES } from "../helpers.js";
 
 function run(products: Product[], request: GiftRequest = makeRequest(), options?: Partial<EngineOptions>) {
@@ -12,7 +12,7 @@ const ids = (result: ReturnType<typeof run>) => result.recommendations.map((r) =
 
 describe("recommend", () => {
   it("returns an empty result for an empty catalog", () => {
-    expect(run([])).toEqual({ recommendations: [], excluded: [], belowThreshold: [], evaluatedCount: 0 });
+    expect(run([])).toMatchObject({ recommendations: [], excluded: [], belowThreshold: [], evaluatedCount: 0 });
   });
 
   it("returns at most maxResults, ranked by score", () => {
@@ -120,6 +120,12 @@ describe("recommend", () => {
     const snapshot = structuredClone(products);
     run(products);
     expect(products).toEqual(snapshot);
+  });
+
+  it("reports the engine version and the resolved options it used", () => {
+    const result = run([], makeRequest(), { maxResults: 3 });
+    expect(result.engineVersion).toBe(ENGINE_VERSION);
+    expect(result.optionsUsed).toMatchObject({ maxResults: 3, minScore: 0.6, allowSampleProducts: false });
   });
 
   it("rejects invalid options", () => {

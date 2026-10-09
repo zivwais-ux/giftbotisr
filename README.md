@@ -6,8 +6,9 @@ AI gift recommendations over WhatsApp. Product context and decisions: [docs/Gift
 
 - Stage 1 ✅ Minimal infrastructure (TypeScript, tests, health endpoint).
 - Stage 2 ✅ Domain model + recommendation engine, tested against clearly-marked sample data.
+- Stage 3 ✅ Database schema (Supabase-compatible migrations) + repositories; engine runs against the database.
 
-No external services (WhatsApp, Supabase, AI model, affiliate programs) are connected yet.
+No external services (WhatsApp, hosted Supabase, AI model, affiliate programs) are connected yet.
 
 ## Requirements
 
@@ -33,6 +34,8 @@ Check it works: open http://localhost:3000/health — expected response: `{"stat
 | `npm run build`     | Compile to `dist/`                    |
 | `npm start`         | Run the compiled server               |
 | `npm run demo`      | Run the engine on the sample catalog  |
+| `npm run db:migrate` | Apply pending migrations to `DATABASE_URL` |
+| `npm run db:seed-sample` | Load the ⚠️ sample catalog (refused in production) |
 
 ## Project layout
 
@@ -49,6 +52,13 @@ src/
     engine.ts             recommend(): filter → score → threshold → diversity
     context.ts            Engine options, defaults and validation
   data/sample-products.ts ⚠️ Fictional sample catalog for dev/tests only
+  data/seed-sample.ts     Loads the sample catalog into the database
+  db/database.ts          Minimal DB interface + node-postgres implementation
+  db/migrate.ts           Applies supabase/migrations/*.sql in order, once each
+  db/catalog-repository.ts        Stores & products: idempotent import, eligible-catalog loading
+  db/recommendation-repository.ts Saves each run + snapshot of what was shown
+  services/recommendation-service.ts  load catalog → recommend → save
+supabase/migrations/      SQL schema (Supabase CLI naming)
 scripts/demo.ts           Prints recommendations for a few sample scenarios
 tests/                    Automated tests
 docs/                     Product context
@@ -72,6 +82,27 @@ Each recommendation carries `warnings` (e.g. `price_converted`, `availability_un
 `price_not_recently_verified`, `sample_data`) so the bot can tell users honestly what isn't verified.
 
 All thresholds and weights are configurable via `options` and are starting points to tune with real users.
+
+## Database
+
+Schema: `supabase/migrations/`. Tables: `stores`, `products`, `product_attributes`, `users`,
+`conversations`, `recommendation_sessions`, `recommendation_items`, `analytics_events`.
+
+Key rules enforced by the database itself:
+- A store can be `approved` only after a recorded terms review confirming links may be sent over messaging apps.
+  Only approved stores feed recommendations; product images are used only if the store allowed them.
+- Sample data (`is_sample`) is never loaded unless explicitly requested.
+- Every recommendation shown is stored with the exact price/score/warnings shown, plus the engine version and options.
+- Row Level Security is on for every table with no policies: Supabase's public API keys can read nothing.
+  Only the backend (direct Postgres connection) accesses data.
+
+Local usage: set `DATABASE_URL` in `.env`, then `npm run db:migrate` and optionally `npm run db:seed-sample`.
+
+### Database tests
+
+`npm test` runs database tests on [PGlite](https://pglite.dev) (real Postgres in-process — no server needed).
+To run them against a real Postgres instead, set `TEST_DATABASE_URL` to a database whose name contains
+`test` — **it will be wiped**.
 
 ## Secrets
 
