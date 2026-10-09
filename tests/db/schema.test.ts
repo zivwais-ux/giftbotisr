@@ -65,6 +65,7 @@ describe("migrations", () => {
     expect(rows.map((r) => r.tablename)).toEqual([
       "analytics_events",
       "conversations",
+      "processed_messages",
       "product_attributes",
       "products",
       "recommendation_items",

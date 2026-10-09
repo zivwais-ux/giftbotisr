@@ -7,6 +7,7 @@ AI gift recommendations over WhatsApp. Product context and decisions: [docs/Gift
 - Stage 1 ✅ Minimal infrastructure (TypeScript, tests, health endpoint).
 - Stage 2 ✅ Domain model + recommendation engine, tested against clearly-marked sample data.
 - Stage 3 ✅ Database schema (Supabase-compatible migrations) + repositories; engine runs against the database.
+- Stage 4 ✅ Conversation engine: channel-neutral dialog, state in the database, dedup, opt-out, analytics.
 
 No external services (WhatsApp, hosted Supabase, AI model, affiliate programs) are connected yet.
 
@@ -58,6 +59,15 @@ src/
   db/catalog-repository.ts        Stores & products: idempotent import, eligible-catalog loading
   db/recommendation-repository.ts Saves each run + snapshot of what was shown
   services/recommendation-service.ts  load catalog → recommend → save
+  conversation/           The dialog (pure, no I/O)
+    messages.ts           Inbound/outbound message model + WhatsApp limits
+    options.ts            Answer options (ids, Hebrew labels, typed aliases), commands
+    budget-parser.ts      Typed budget parsing ("עד 300", "200-300", ...)
+    state.ts              Conversation state schema (stored as JSON)
+    flow.ts               State machine: question order, answers, actions, effects
+    render.ts             Product cards, honest notes, affiliate disclosure
+  db/conversation-repository.ts  Users, conversations, dedup, analytics events
+  services/conversation-service.ts  One inbound message → reply, in one transaction
 supabase/migrations/      SQL schema (Supabase CLI naming)
 scripts/demo.ts           Prints recommendations for a few sample scenarios
 tests/                    Automated tests
@@ -83,10 +93,30 @@ Each recommendation carries `warnings` (e.g. `price_converted`, `availability_un
 
 All thresholds and weights are configurable via `options` and are starting points to tune with real users.
 
+## Conversation
+
+`handleInboundMessage(db, inbound, deps)` processes one message atomically and returns the replies to send:
+
+1. **Deduplicate** by provider message id (a repeat delivery does nothing).
+2. **Identify the user** (row-locked, so simultaneous messages from one user are handled in order).
+   Opted-out users get no replies unless they write "התחל".
+3. **Advance the dialog**: recipient → occasion → budget → interests → things to avoid → deadline →
+   international shipping. Only unanswered questions are asked; irrelevant ones are skipped
+   (no interests for a baby; no international shipping for a 3-day deadline). Users can tap buttons or type.
+   Tapping an older question's button corrects that answer.
+4. **Recommend** when everything is known; then offer "more", "cheaper", "restart".
+   With no results, offer the fix that would unlock the most products (e.g. raise budget).
+5. **Persist** state and analytics events (no personal data in events).
+
+Commands at any time: "התחל מחדש", "עזרה", "הסר". Conversations idle for 24 hours are closed.
+
+Interests are currently picked from a fixed list of 9 categories (plus "no specific interest").
+Understanding free text with AI is a later stage.
+
 ## Database
 
 Schema: `supabase/migrations/`. Tables: `stores`, `products`, `product_attributes`, `users`,
-`conversations`, `recommendation_sessions`, `recommendation_items`, `analytics_events`.
+`conversations`, `recommendation_sessions`, `recommendation_items`, `analytics_events`, `processed_messages`.
 
 Key rules enforced by the database itself:
 - A store can be `approved` only after a recorded terms review confirming links may be sent over messaging apps.

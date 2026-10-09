@@ -3,3 +3,4 @@ export type { Recommendation, RecommendationResult, RecommendationWarning, Recom
 export { DEFAULT_OPTIONS, DEFAULT_WEIGHTS } from "./context.js";
 export type { EngineOptions, ScoreWeights } from "./context.js";
 export type { ExclusionReason } from "./filters.js";
+export { countExclusionReasons } from "./stats.js";

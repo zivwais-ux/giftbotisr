@@ -47,6 +47,7 @@ function createPgliteDatabase(pglite: PGlite): Database {
 }
 
 const ALL_TABLES = [
+  "processed_messages",
   "analytics_events",
   "recommendation_items",
   "recommendation_sessions",
