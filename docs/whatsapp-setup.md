@@ -19,8 +19,15 @@ Meta's dashboard changes over time; if a label differs, look for the closest equ
 | `WHATSAPP_APP_SECRET` | App settings → Basic → App secret → Show |
 | `WHATSAPP_VERIFY_TOKEN` | Any random string of 16+ characters that **you** make up |
 
-## 3. Register the webhook (needs the server online — done together in the deployment step)
-WhatsApp → Configuration → Webhook:
-- Callback URL: `https://<your-server>/webhooks/whatsapp`
+## 3. Put the four values into Railway (not into chat or code)
+Railway → project **giftbot** → service **giftbot** → **Variables** → add the four variables above.
+Railway redeploys automatically; the WhatsApp routes turn on when all four are present.
+
+## 4. Register the webhook in Meta
+WhatsApp → Configuration → Webhook → Edit:
+- Callback URL: `https://giftbot-staging.up.railway.app/webhooks/whatsapp`
 - Verify token: the same `WHATSAPP_VERIFY_TOKEN`
-- Subscribe to the **messages** field.
+- Click **Verify and save**, then subscribe to the **messages** field.
+
+## 5. Test
+Send "היי" from your own WhatsApp (the number added in step 1.4) to the test number.

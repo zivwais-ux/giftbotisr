@@ -10,6 +10,7 @@ AI gift recommendations over WhatsApp. Product context and decisions: [docs/Gift
 - Stage 4 ✅ Conversation engine: channel-neutral dialog, state in the database, dedup, opt-out, analytics.
 - Stage 5 ✅ WhatsApp Cloud API channel: signed webhook, message parsing, sending with retries. Not yet connected to a live Meta account.
 - Stage 6 ✅ Catalog import: CSV / Google Merchant feeds → validated products, per-store terms config, affiliate links.
+- Stage 7 ✅ Deployed (staging) on Railway with managed Postgres: https://giftbot-staging.up.railway.app — WhatsApp pending Meta credentials.
 
 No external services (WhatsApp, hosted Supabase, AI model, affiliate programs) are connected yet.
 
@@ -171,6 +172,15 @@ Local usage: set `DATABASE_URL` in `.env`, then `npm run db:migrate` and optiona
 `npm test` runs database tests on [PGlite](https://pglite.dev) (real Postgres in-process — no server needed).
 To run them against a real Postgres instead, set `TEST_DATABASE_URL` to a database whose name contains
 `test` — **it will be wiped**.
+
+## Deployment (Railway)
+
+Project **giftbot**, environment **staging**: service `giftbot` (this repo's branch) + `Postgres`.
+- Build `npm run build`, start `npm start`, pre-deploy `node dist/bin/release.js` (migrations, optional sample seed),
+  healthcheck `/health`. These are set on the Railway service.
+- Variables: `DATABASE_URL=${{Postgres.DATABASE_URL}}` (reference — no password is copied anywhere),
+  `NODE_ENV=staging`, `ALLOW_SAMPLE_PRODUCTS=true`, `SEED_SAMPLE_DATA=true`, plus the `WHATSAPP_*` values.
+- On startup the server logs `database.status` (applied migrations, product and store counts).
 
 ## Secrets
 
