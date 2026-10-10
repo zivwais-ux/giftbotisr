@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+import { DATA_DELETION_HTML, DATA_DELETION_PATH, PRIVACY_HTML, PRIVACY_PATH } from "./legal-pages.js";
 import { receiveNotification, verifySubscription, type WhatsAppWebhookDeps } from "./channels/whatsapp/webhook.js";
 
 export interface AppDeps {
@@ -58,6 +59,12 @@ async function route(req: IncomingMessage, res: ServerResponse, deps: AppDeps): 
 
   if (req.method === "GET" && url.pathname === "/health") {
     sendJson(res, 200, { status: "ok", service: "giftbot" });
+    return;
+  }
+
+  if (req.method === "GET" && (url.pathname === PRIVACY_PATH || url.pathname === DATA_DELETION_PATH)) {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(url.pathname === PRIVACY_PATH ? PRIVACY_HTML : DATA_DELETION_HTML);
     return;
   }
 

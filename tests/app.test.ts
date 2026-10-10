@@ -22,6 +22,15 @@ describe("HTTP app", () => {
     expect(await res.json()).toEqual({ status: "ok", service: "giftbot" });
   });
 
+  it("serves the privacy policy and data-deletion pages as HTML", async () => {
+    for (const path of ["/privacy", "/data-deletion"]) {
+      const res = await fetch(`${baseUrl}${path}`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("text/html");
+      expect(await res.text()).toContain('lang="he"');
+    }
+  });
+
   it("unknown route returns 404", async () => {
     const res = await fetch(`${baseUrl}/nope`);
     expect(res.status).toBe(404);
