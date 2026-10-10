@@ -2,7 +2,7 @@
   "slug": "temu",
   "name": "Temu",
   "country": "US",
-  "currency": "USD",
+  "currency": "ILS",
   "websiteUrl": "https://www.temu.com",
   "dataSource": "manual-temu",
   "network": "temu-affiliate",

@@ -1,12 +1,7 @@
 id,title,description,price,currency,link,affiliate_url,image_link,availability,product_type,interests,occasions,recipients,delivery_min_days,delivery_max_days
-temu-01,חולצת טריקו נשית צבעונית עם שרוולים ארוכים וצווארון V,,,USD,https://temu.to/k/eh4vmdlye05,https://temu.to/k/eh4vmdlye05,,unknown,,,,,,
-temu-02,"זוג מדרסים אורתופדיים עם תמיכה לקשת כף הרגל, יוניסקס",,,USD,https://temu.to/k/e8zwowuhlq1,https://temu.to/k/e8zwowuhlq1,,unknown,,,,,,
-temu-03,"מנורת הקרנה של זוהר הצפון, תאורת אווירה RGB",,,USD,https://temu.to/k/erqspfpauje,https://temu.to/k/erqspfpauje,,unknown,,,,,,
-temu-04,מקציף חלב חשמלי נטען USB עם 3 מהירויות,,,USD,https://temu.to/k/es6re6vos5l,https://temu.to/k/es6re6vos5l,,unknown,,,,,,
-temu-05,מכבש שום מנירוסטה,,,USD,https://temu.to/k/e1ulp31ddcv,https://temu.to/k/e1ulp31ddcv,,unknown,,,,,,
-temu-06,מעיל קז'ואל מבד זמש עם שרוולים ארוכים,,,USD,https://temu.to/k/euplkxgg14d,https://temu.to/k/euplkxgg14d,,unknown,,,,,,
-temu-07,,,,USD,https://temu.to/k/elek40ptgfe,https://temu.to/k/elek40ptgfe,,unknown,,,,,,
-temu-08,,,,USD,https://temu.to/k/elmokmzwt5v,https://temu.to/k/elmokmzwt5v,,unknown,,,,,,
-temu-09,,,,USD,https://temu.to/k/eaygsc1u57e,https://temu.to/k/eaygsc1u57e,,unknown,,,,,,
-temu-10,,,,USD,https://temu.to/k/eolga7man25,https://temu.to/k/eolga7man25,,unknown,,,,,,
-temu-11,,,,USD,https://temu.to/k/e812xdjp9f7,https://temu.to/k/e812xdjp9f7,,unknown,,,,,,
+temu-01,חולצת טריקו נשית צבעונית עם שרוולים ארוכים וצווארון V,,72.38,ILS,https://temu.to/k/eh4vmdlye05,https://temu.to/k/eh4vmdlye05,,unknown,אופנה > נשים,,,,,30
+temu-02,"זוג מדרסים אורתופדיים עם תמיכה לקשת כף הרגל, יוניסקס",,112.95,ILS,https://temu.to/k/e8zwowuhlq1,https://temu.to/k/e8zwowuhlq1,,unknown,בריאות > כף הרגל,,,,,30
+temu-03,"מנורת הקרנה של זוהר הצפון, תאורת אווירה RGB",,49.68,ILS,https://temu.to/k/erqspfpauje,https://temu.to/k/erqspfpauje,,unknown,בית > תאורה,,birthday|housewarming,,,30
+temu-04,מקציף חלב חשמלי נטען USB עם 3 מהירויות,,19.26,ILS,https://temu.to/k/es6re6vos5l,https://temu.to/k/es6re6vos5l,,unknown,מטבח > קפה,coffee,birthday|housewarming|thank_you|holiday,,,30
+temu-05,מכבש שום מנירוסטה,,24.48,ILS,https://temu.to/k/e1ulp31ddcv,https://temu.to/k/e1ulp31ddcv,,unknown,מטבח > כלי בישול,cooking,housewarming|thank_you,,,30
+temu-06,מעיל קז'ואל מבד זמש עם שרוולים ארוכים,,91.46,ILS,https://temu.to/k/euplkxgg14d,https://temu.to/k/euplkxgg14d,,unknown,אופנה,,,,,30
