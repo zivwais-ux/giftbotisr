@@ -9,7 +9,18 @@ import { consoleLogger as logger } from "./logger.js";
 import { handleInboundMessage } from "./services/conversation-service.js";
 
 loadDotEnv();
-const config = loadConfig();
+
+/** Reads and validates the configuration; on a mistake, logs exactly which setting is wrong and exits. */
+function loadConfigOrExit(): Config {
+  try {
+    return loadConfig();
+  } catch (err) {
+    // Messages name the setting, never its value.
+    logger.log("error", "config.invalid", { error: (err as Error).message });
+    process.exit(1);
+  }
+}
+const config = loadConfigOrExit();
 
 /**
  * No real exchange-rate source is connected yet. An empty table means foreign-currency products
