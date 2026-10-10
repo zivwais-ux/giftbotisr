@@ -76,7 +76,13 @@ function loadWhatsAppConfig(env: NodeJS.ProcessEnv): WhatsAppConfig | undefined 
   if (missing.length > 0) throw new Error(`Incomplete WhatsApp configuration. Missing: ${missing.join(", ")}`);
 
   if (values.verifyToken!.length < 16) throw new Error("WHATSAPP_VERIFY_TOKEN must be at least 16 characters");
-  if (!/^\d+$/.test(values.phoneNumberId!)) throw new Error("WHATSAPP_PHONE_NUMBER_ID must contain digits only");
+  const phoneNumberId = cleanNumericId(values.phoneNumberId!);
+  if (!/^\d+$/.test(phoneNumberId)) {
+    // Reports only the offending NON-digit characters (never the digits), so the mistake is visible.
+    throw new Error(
+      `WHATSAPP_PHONE_NUMBER_ID must contain digits only (length ${phoneNumberId.length}; found: ${describeNonDigits(phoneNumberId)})`,
+    );
+  }
   const graphApiVersion = env.WHATSAPP_GRAPH_API_VERSION?.trim() || DEFAULT_GRAPH_API_VERSION;
   if (!/^v\d+\.\d+$/.test(graphApiVersion)) throw new Error("WHATSAPP_GRAPH_API_VERSION must look like v26.0");
 
@@ -84,9 +90,27 @@ function loadWhatsAppConfig(env: NodeJS.ProcessEnv): WhatsAppConfig | undefined 
     verifyToken: values.verifyToken!,
     appSecret: values.appSecret!,
     accessToken: values.accessToken!,
-    phoneNumberId: values.phoneNumberId!,
+    phoneNumberId,
     graphApiVersion,
   };
+}
+
+/** Removes paste artifacts from an id: surrounding quotes, all whitespace, and invisible direction/zero-width marks. */
+export function cleanNumericId(value: string): string {
+  return value
+    .replace(/[\s\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, "")
+    .replace(/^["'“”‘’`]+|["'“”‘’`]+$/g, "");
+}
+
+/** E.g. `"+" (U+002B), letter "a" (U+0061)` — lists distinct non-digit characters, never digits. */
+function describeNonDigits(value: string): string {
+  const seen = new Map<string, string>();
+  for (const ch of value) {
+    if (/\d/.test(ch) || seen.has(ch)) continue;
+    const code = `U+${ch.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0")}`;
+    seen.set(ch, /[\p{L}\p{P}\p{S}]/u.test(ch) ? `"${ch}" (${code})` : code);
+  }
+  return [...seen.values()].slice(0, 8).join(", ") || "none";
 }
 
 /** Loads variables from a local .env file if one exists. Real environment variables take precedence. */

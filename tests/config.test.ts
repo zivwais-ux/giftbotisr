@@ -69,9 +69,22 @@ describe("loadConfig", () => {
       expect(() => loadConfig(partial)).not.toThrow(/EAAG|app-secret-value/);
     });
 
+    it("cleans paste artifacts from the phone number id (quotes, spaces, invisible marks)", () => {
+      for (const messy of ['"123456789012345"', " 123 456 789 012 345 ", "\u200E123456789012345\u200F", "'123456789012345'"]) {
+        expect(loadConfig({ ...full, WHATSAPP_PHONE_NUMBER_ID: messy }).whatsapp?.phoneNumberId).toBe("123456789012345");
+      }
+    });
+
+    it("reports which non-digit characters are wrong, without revealing the digits", () => {
+      const run = () => loadConfig({ ...full, WHATSAPP_PHONE_NUMBER_ID: "+15550783881" });
+      expect(run).toThrow(/digits only/);
+      expect(run).toThrow(/"\+" \(U\+002B\)/);
+      expect(run).not.toThrow(/5550783881/);
+    });
+
     it("validates the values", () => {
       expect(() => loadConfig({ ...full, WHATSAPP_VERIFY_TOKEN: "short" })).toThrow(/at least 16/);
-      expect(() => loadConfig({ ...full, WHATSAPP_PHONE_NUMBER_ID: "+123" })).toThrow(/digits only/);
+      expect(() => loadConfig({ ...full, WHATSAPP_PHONE_NUMBER_ID: "12ab" })).toThrow(/digits only/);
       expect(() => loadConfig({ ...full, WHATSAPP_GRAPH_API_VERSION: "latest" })).toThrow(/v26\.0/);
     });
   });
