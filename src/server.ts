@@ -1,5 +1,6 @@
 import type { Server } from "node:http";
 import { createApp, type AppDeps } from "./app.js";
+import { diagnoseWhatsApp } from "./channels/whatsapp/diagnose.js";
 import { createWhatsAppClient } from "./channels/whatsapp/client.js";
 import { loadConfig, loadDotEnv, type Config } from "./config.js";
 import { createPgDatabase, type Database } from "./db/database.js";
@@ -74,6 +75,7 @@ function buildDeps(cfg: Config): AppDeps {
 
 const server: Server = createApp(buildDeps(config));
 if (db) void logDatabaseStatus(db);
+if (config.whatsapp) void diagnoseWhatsApp(config.whatsapp, logger);
 server.listen(config.port, () => {
   logger.log("info", "server.started", { port: config.port, env: config.nodeEnv, whatsapp: Boolean(config.whatsapp) });
 });

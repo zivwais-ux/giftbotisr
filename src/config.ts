@@ -7,6 +7,8 @@ export interface WhatsAppConfig {
   accessToken: string;
   phoneNumberId: string;
   graphApiVersion: string;
+  /** Optional WhatsApp Business Account id; enables the startup webhook subscription. Not secret. */
+  businessAccountId?: string | undefined;
 }
 
 export interface Config {
@@ -86,12 +88,18 @@ function loadWhatsAppConfig(env: NodeJS.ProcessEnv): WhatsAppConfig | undefined 
   const graphApiVersion = env.WHATSAPP_GRAPH_API_VERSION?.trim() || DEFAULT_GRAPH_API_VERSION;
   if (!/^v\d+\.\d+$/.test(graphApiVersion)) throw new Error("WHATSAPP_GRAPH_API_VERSION must look like v26.0");
 
+  const businessAccountId = cleanNumericId(env.WHATSAPP_BUSINESS_ACCOUNT_ID ?? "");
+  if (businessAccountId && !/^\d+$/.test(businessAccountId)) {
+    throw new Error("WHATSAPP_BUSINESS_ACCOUNT_ID must contain digits only");
+  }
+
   return {
     verifyToken: values.verifyToken!,
     appSecret: values.appSecret!,
     accessToken: values.accessToken!,
     phoneNumberId,
     graphApiVersion,
+    businessAccountId: businessAccountId || undefined,
   };
 }
 
