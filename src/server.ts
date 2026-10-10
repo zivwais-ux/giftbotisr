@@ -5,9 +5,9 @@ import { createWhatsAppClient } from "./channels/whatsapp/client.js";
 import { loadConfig, loadDotEnv, type Config } from "./config.js";
 import { createPgDatabase, type Database } from "./db/database.js";
 import { getDatabaseStatus } from "./db/status.js";
-import type { ExchangeRates } from "./domain/money.js";
 import { consoleLogger as logger } from "./logger.js";
 import { handleInboundMessage } from "./services/conversation-service.js";
+import { createExchangeRateProvider } from "./services/exchange-rates.js";
 
 loadDotEnv();
 
@@ -23,11 +23,8 @@ function loadConfigOrExit(): Config {
 }
 const config = loadConfigOrExit();
 
-/**
- * No real exchange-rate source is connected yet. An empty table means foreign-currency products
- * are excluded rather than priced with invented rates.
- */
-const NO_EXCHANGE_RATES: ExchangeRates = { toIls: {}, asOf: new Date(0) };
+/** Real, dated rates (Bank of Israel, ECB as fallback). With no usable rates, foreign-currency products are excluded. */
+const exchangeRates = createExchangeRateProvider(logger);
 
 const background = new Set<Promise<void>>();
 let db: Database | undefined;
@@ -51,7 +48,6 @@ function buildDeps(cfg: Config): AppDeps {
   if (!db) throw new Error("WhatsApp is configured but DATABASE_URL is not set");
   const database = db;
   if (cfg.allowSampleProducts) logger.log("warn", "sample_products.enabled");
-  logger.log("warn", "exchange_rates.unavailable", { effect: "foreign-currency products are excluded" });
 
   return {
     whatsapp: {
@@ -61,7 +57,7 @@ function buildDeps(cfg: Config): AppDeps {
       client: createWhatsAppClient(cfg.whatsapp),
       processMessage: (inbound) =>
         handleInboundMessage(database, inbound, {
-          getExchangeRates: () => NO_EXCHANGE_RATES,
+          getExchangeRates: () => exchangeRates.get(),
           engineOptions: { allowSampleProducts: cfg.allowSampleProducts },
         }),
       logger,
@@ -75,6 +71,7 @@ function buildDeps(cfg: Config): AppDeps {
 
 const server: Server = createApp(buildDeps(config));
 if (db) void logDatabaseStatus(db);
+void exchangeRates.refresh();
 if (config.whatsapp) void diagnoseWhatsApp(config.whatsapp, logger);
 server.listen(config.port, () => {
   logger.log("info", "server.started", { port: config.port, env: config.nodeEnv, whatsapp: Boolean(config.whatsapp) });
