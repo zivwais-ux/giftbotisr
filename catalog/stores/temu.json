@@ -1,0 +1,23 @@
+{
+  "slug": "temu",
+  "name": "Temu",
+  "country": "US",
+  "currency": "USD",
+  "websiteUrl": "https://www.temu.com",
+  "dataSource": "manual-temu",
+  "network": "temu-affiliate",
+  "terms": {
+    "approvalStatus": "pending",
+    "allowsMessagingLinks": null,
+    "allowsProductImages": null,
+    "requiresAffiliateDisclosure": true,
+    "termsUrl": null,
+    "notes": "NOT REVIEWED. Before approving: read Temu's affiliate terms and record here (1) whether links may be shared in WhatsApp/messaging, (2) image usage, (3) disclosure, (4) Israel eligibility and that Temu ships to Israel. Delivery times are unknown and intentionally not set.",
+    "reviewedAt": null
+  },
+  "defaults": {
+    "shipsTo": ["IL"],
+    "occasions": ["any"],
+    "recipients": ["any"]
+  }
+}
