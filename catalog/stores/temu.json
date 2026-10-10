@@ -7,17 +7,23 @@
   "dataSource": "manual-temu",
   "network": "temu-affiliate",
   "terms": {
-    "approvalStatus": "pending",
-    "allowsMessagingLinks": null,
+    "approvalStatus": "approved",
+    "allowsMessagingLinks": true,
     "allowsProductImages": null,
     "requiresAffiliateDisclosure": true,
     "termsUrl": null,
-    "notes": "NOT REVIEWED. Before approving: read Temu's affiliate terms and record here (1) whether links may be shared in WhatsApp/messaging, (2) image usage, (3) disclosure, (4) Israel eligibility and that Temu ships to Israel. Delivery times are unknown and intentionally not set.",
-    "reviewedAt": null
+    "notes": "OWNER DECISION, NOT CONFIRMED BY THE TERMS. As of 2026-10-10 the owner checked the Temu affiliate terms: they do not mention messaging apps/WhatsApp (neither allowed nor prohibited). The owner accepted that risk. allowsMessagingLinks is therefore true by owner decision only. Account approved, link creation works. Re-check terms before public launch. Delivery times unknown: 'up to 30 days' set by owner.",
+    "reviewedAt": "2026-10-10"
   },
   "defaults": {
-    "shipsTo": ["IL"],
-    "occasions": ["any"],
-    "recipients": ["any"]
+    "shipsTo": [
+      "IL"
+    ],
+    "occasions": [
+      "any"
+    ],
+    "recipients": [
+      "any"
+    ]
   }
 }
